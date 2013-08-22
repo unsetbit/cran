@@ -1,3 +1,3 @@
-var createHttpServer = require('./lib/HttpServer.js');
+var createCran = require('./lib/server/Server.js');
 
-var server = createHttpServer(80);
+var cran = createServer(80);

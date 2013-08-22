@@ -1,0 +1,13 @@
+{
+  "name": "cran",
+  "version": "1.0.0",
+  "dependencies": {
+    "bootstrap": "~3.0.0",
+    "angular": "1.2.0rc1",
+    "angular-resource": "~1.0.5"
+  },
+  "devDependencies": {},
+  "resolutions": {
+    "angular": "1.2.0rc1"
+  }
+}

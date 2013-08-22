@@ -1,0 +1,20 @@
+{
+  "name": "cran",
+  "description": "",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "~3.1.2",
+    "ws": "~0.4.28",
+    "node-uuid": "~1.4.1",
+    "request": "~2.27.0"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "keywords": [],
+  "scripts": {
+    "test": "grunt test"
+  }
+}

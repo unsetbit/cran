@@ -1,7 +1,7 @@
 var vm = require('vm'),
 	generateId = require('node-uuid').v4;
 
-module.exports = function createJob(script, schedule){
+module.exports = function createJob(name, script, schedule){
 	var job = {};
 	var compiledScript = vm.createScript(script);
 	var id = generateId();
@@ -16,6 +16,7 @@ module.exports = function createJob(script, schedule){
 	function getApi(){
 		var api = {};
 		
+		api.name = name;
 		api.id = id;
 		api.script = script;
 		api.startTime = startTime;

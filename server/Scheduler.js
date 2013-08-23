@@ -1,10 +1,12 @@
-var BinaryHeap = require('./BinaryHeap.js');
+var EventEmitter = require('events').EventEmitter,
+	BinaryHeap = require('./BinaryHeap.js');
 
 // This is the longest timeout allowed
 var MAX_TIMEOUT = 2147483647; // 2^31 - 1
 
 module.exports = function createScheduler(){
 	var timer;
+	var emitter = new EventEmitter();
 	var jobMap = {};
 
 	var jobQueue = new BinaryHeap(function(item){
@@ -15,7 +17,9 @@ module.exports = function createScheduler(){
 		return {
 			add: add,
 			remove: remove,
-			get: get
+			get: get,
+			on: emitter.on.bind(emitter),
+			removeListener: emitter.removeListener.bind(emitter)
 		};
 	}
 
@@ -25,6 +29,8 @@ module.exports = function createScheduler(){
 	}
 
 	function add(job){
+		if(job.id in jobMap) return;
+
 		jobQueue.push(job);
 		jobMap[job.id] = job;
 
@@ -33,9 +39,13 @@ module.exports = function createScheduler(){
 		if(jobQueue.peek() === job){
 			resetTimer();
 		}
+
+		emitter.emit('job added', job);
 	}
 
 	function remove(job){
+		if(!(job.id in jobMap)) return;
+		
 		if(jobQueue.peek() === job){
 			// If this job was next in line, we need
 			// to reset the timer after we remove it from
@@ -47,6 +57,8 @@ module.exports = function createScheduler(){
 		}
 
 		delete jobMap[job.id];
+
+		emitter.emit('job removed', job);
 	}
 
 	function resetTimer(){

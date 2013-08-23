@@ -12,7 +12,7 @@ module.exports = function(jobs, req, res){
 	var schedule = Schedules[type](req.query);
 
 	// Create job
-	var job = createJob(req.rawBody, schedule);
+	var job = createJob(req.query.name, req.rawBody, schedule);
 
 	// Add the job to the scheduler
 	jobs.add(job);

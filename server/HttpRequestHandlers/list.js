@@ -1,3 +1,7 @@
 module.exports = function(jobs, req, res){
-	res.send(200, Object.keys(jobs.get()));
+	var jobsMap = jobs.get();
+	var jobs = Object.keys(jobsMap).map(function(jobId){
+		return jobsMap[jobId];
+	});
+	res.send(200, jobs);
 };

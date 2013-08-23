@@ -36,6 +36,12 @@ module.exports = function(grunt) {
     },
 
     copy:{
+      devIndex: {
+        files: [{ 
+                  dest: '<%= properties.devServerDir %>/index.html',
+                  src: '<%= properties.templatesDir %>/main.html',
+              }]
+      },      
       devTemplates:{
         files: [
           {
@@ -64,10 +70,18 @@ module.exports = function(grunt) {
             expand: true,
             src: ['cran.js']
           },
+          { 
+              dest: '<%= properties.devServerDir %>/worker-javascript.js',
+              src: '<%= properties.componentsDir %>/ace-builds/src/worker-javascript.js',
+          }
         ]
       },
       dist:{
         files: [
+          { 
+              dest: '<%= properties.distDir %>/index.html',
+              src: '<%= properties.templatesDir %>/main.html',
+          },
           {
             dest: '<%= properties.distDir %>/template/',
             cwd: '<%= properties.templatesDir %>/',
@@ -79,6 +93,10 @@ module.exports = function(grunt) {
             cwd: '<%= properties.tmpDir %>',
             expand: true,
             src: ['images/**', 'fonts/**']
+          },
+          { 
+              dest: '<%= properties.devServerDir %>/worker-javascript.js',
+              src: '<%= properties.componentsDir %>/ace-builds/src/worker-javascript.js',
           }
         ]
       }
@@ -96,8 +114,13 @@ module.exports = function(grunt) {
         src: [
           '<%= properties.componentsDir %>/jquery/jquery.js',
           '<%= properties.componentsDir %>/angular/angular.js',
+          '<%= properties.componentsDir %>/angular-route/angular-route.js',
           '<%= properties.componentsDir %>/angular-resource/angular-resource.js',
+          '<%= properties.componentsDir %>/ace-builds/src/ace.js',
+          '<%= properties.componentsDir %>/ace-builds/src/mode-javascript.js',
+          '<%= properties.componentsDir %>/angular-ui-ace/ui-ace.js',
           '<%= properties.componentsDir %>/bootstrap/dist/js/bootstrap.js',
+          '<%= properties.componentsDir %>/eventemitter2/lib/eventemitter2.js',
           '<%= hug.cran.dest %>'
         ],
         dest: '<%= properties.tmpDir %>/cran.js'
@@ -105,6 +128,7 @@ module.exports = function(grunt) {
       styles: {
         src: [
           '<%= properties.componentsDir %>/bootstrap/dist/css/bootstrap.css',
+          '<%= properties.componentsDir %>/codemirror/lib/codemirror.css',
           '<%= properties.tmpDir %>/app.css'
         ],
         dest: '<%= properties.tmpDir %>/cran.css'
@@ -117,7 +141,7 @@ module.exports = function(grunt) {
       },
       templates: {
         files: ['<%= properties.templatesDir %>/**'],
-        tasks: ["copy:devTemplates"]
+        tasks: ["copy:devTemplates", "copy:devIndex"]
       },
       scripts: {
         files: ['<%= properties.scriptsDir %>/**'],
@@ -199,6 +223,10 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       }
+    },
+
+    server: {
+      dev: {}
     }
   };
 
@@ -214,6 +242,7 @@ module.exports = function(grunt) {
     'build',
     'clean:dev',
     'jshint:dev',
+    'copy:devIndex',
     'copy:devTemplates',
     'copy:devScripts',
     'copy:devStyles'
@@ -221,6 +250,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('dev', [
     'build-dev',
+    'server',
     'watch'
   ]);
 

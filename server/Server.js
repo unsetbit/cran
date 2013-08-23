@@ -1,29 +1,99 @@
 var vm = require('vm'),
 	ws = require('ws'),
+	http = require('http'),
 	express = require('express'),
 	reqHandler = require('./HttpRequestHandlers'),
 	wsHandler = require('./WebsocketHandlers'),
 	createScheduler = require('./Scheduler.js');
 
-module.exports = function(port, hostname){
+var Schedules = require('./Schedules'),
+	createJob = require('./Job.js');
+
+module.exports = function(port, hostname, root){
+	var app = express();
+	var server = http.createServer(app);
+
 	var scheduler = createScheduler();
 	
 	// Http request handlers
-	var server = express();
-	server.listen(port, hostname);
-
-	server.param('jobId', reqHandler.jobIdMiddleware.bind(null, scheduler));
-	server.post('/add', 
+	app.use(express.static(root));
+	app.param('jobId', reqHandler.jobIdMiddleware.bind(null, scheduler));
+	app.post('/add', 
 				reqHandler.bodyCollectorMiddleware, 
 				reqHandler.add.bind(null, scheduler)
 	);
-	server.get('/list', reqHandler.list.bind(null, scheduler));
-	server.get('/get/:jobId', reqHandler.get);
-	server.get('/remove/:jobId', reqHandler.remove.bind(null, scheduler));
+	app.get('/list', reqHandler.list.bind(null, scheduler));
+	app.get('/get/:jobId', reqHandler.get);
+	app.get('/remove/:jobId', reqHandler.remove.bind(null, scheduler));
 
+	server.listen(port, hostname);
+	
 	// Web socket handlers
 	var wsServer = new ws.Server({server: server});
-	wsServer.on('connection', wsHandler.connection.bind(null, scheduler));
+	var sockets = [];
+
+	wsServer.on('connection', function(socket){
+		sockets.push(socket);
+		var jobsMap = scheduler.get(),
+			jobsArray = Object.keys(jobsMap).map(function(jobId){return jobsMap[jobId];});
+
+
+		socket.send(JSON.stringify({
+			type: 'job list',
+			jobs: jobsArray
+		}));
+
+		socket.on('message', function(message){
+			var data = JSON.parse(message);
+			switch(data.type){
+				case 'create':
+					var schedule = Schedules.FuzzyInterval({interval:2000});
+
+					// Create job
+					var job = createJob(data.job.name, data.job.script, schedule);
+
+					// Add the job to the scheduler
+					scheduler.add(job);
+
+					break;
+			}
+		});
+
+		socket.on('close', function(){
+			var index = sockets.indexOf(socket);
+			sockets.splice(index, 1);
+		});
+	});
+
+	scheduler.on('job added', function(job){
+		console.log('job event');
+		emitToSockets({ 
+			type: 'job added', 
+			job: job
+		});
+	});
+
+	scheduler.on('job removed', function(job){
+		emitToSockets({ 
+			type: 'job removed', 
+			job: job
+		});
+	});
+
+	scheduler.on('job updated', function(job){
+		emitToSockets({ 
+			type: 'job updated', 
+			job: job
+		});
+	});
+
+	function emitToSockets(message){
+		var stringified = JSON.stringify(message);
+		sockets.forEach(function(socket){
+			console.log('emitting: ' + stringified);
+			socket.send(stringified);
+		});
+	}
 
 	return server;
 };

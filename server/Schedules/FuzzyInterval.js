@@ -3,7 +3,7 @@ var Interval = require('./Interval.js');
 // All time values are in milliseconds
 module.exports = function createFuzzyInterval(options){
 	var interval = Interval(options),
-		fuzz = parseInt(options.fuzz, 10),
+		fuzz = options.fuzz ? parseInt(options.fuzz, 10) : 0,
 		doubleFuzz = fuzz * 2;
 
 	function getFuzz(){

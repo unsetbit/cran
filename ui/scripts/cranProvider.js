@@ -16,14 +16,20 @@ module.exports = function(){
 		};
 
 		return {
-			getJobs: getJobs,
+			get: get,
 			on: emitter.on.bind(emitter),
 			removeListener: emitter.removeListener.bind(emitter),
 			create: createJob
 		};
 	};
 
-	function getJobs(){
+	function get(id){
+		if(id) return jobs[id];
+
+		return getJobList();
+	}
+
+	function getJobList(){
 		return Object.keys(jobs).map(function(jobId){
 			return jobs[jobId];
 		});
@@ -54,7 +60,7 @@ module.exports = function(){
 			break;
 		}
 
-		emitter.emit('update', getJobs());
+		emitter.emit('update', getJobList());
 	}
 
 	function loadJobs(jobsArray){

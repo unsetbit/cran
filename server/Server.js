@@ -47,10 +47,8 @@ module.exports = function(port, hostname, root){
 			var data = JSON.parse(message);
 			switch(data.type){
 				case 'create':
-					var schedule = Schedules.FuzzyInterval({interval:2000});
-
 					// Create job
-					var job = createJob(data.job.name, data.job.script, schedule);
+					var job = createJob(data.job.name, data.job.script, data.job.rawSchedule);
 
 					// Add the job to the scheduler
 					scheduler.add(job);

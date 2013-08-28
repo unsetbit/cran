@@ -21,6 +21,7 @@ module.exports = function(grunt) {
     properties: {
       scriptsDir: './ui/scripts',
       stylesDir: './ui/styles',
+      staticDir: './ui/static',
       testsDir: './ui/tests',
       componentsDir: './ui/components',
       templatesDir: './ui/templates',
@@ -41,7 +42,7 @@ module.exports = function(grunt) {
                   dest: '<%= properties.devServerDir %>/index.html',
                   src: '<%= properties.templatesDir %>/main.html',
               }]
-      },      
+      },
       devTemplates:{
         files: [
           {
@@ -59,6 +60,18 @@ module.exports = function(grunt) {
             cwd: '<%= properties.tmpDir %>',
             expand: true,
             src: ['cran.css', 'images/**']
+          },
+          { 
+            dest: '<%= properties.devServerDir %>/fonts',
+            cwd: '<%= properties.componentsDir %>/bootstrap/fonts',
+            expand: true,
+            src: ['**']
+          },
+          {
+            dest: '<%= properties.devServerDir %>/static',
+            cwd: '<%= properties.staticDir %>',
+            expand: true,
+            src: ['**']
           }
         ]
       },
@@ -121,6 +134,8 @@ module.exports = function(grunt) {
           '<%= properties.componentsDir %>/angular-ui-ace/ui-ace.js',
           '<%= properties.componentsDir %>/bootstrap/dist/js/bootstrap.js',
           '<%= properties.componentsDir %>/eventemitter2/lib/eventemitter2.js',
+          '<%= properties.componentsDir %>/later/later.js',
+          '<%= properties.componentsDir %>/moment/moment.js',
           '<%= hug.cran.dest %>'
         ],
         dest: '<%= properties.tmpDir %>/cran.js'

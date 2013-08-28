@@ -1,0 +1,11 @@
+<div class="container">
+	<div>
+		<input class="h3 script-name" type="text" placeholder="Type your job name" ng-model="job.name" />
+		<input class="script-schedule" type="text" placeholder="Type your job schedule"  ng-model="job.rawSchedule"/>
+	</div>
+	<div ui-ace="{mode:'javascript', showGutter: true, onLoad: aceLoaded}"  ng-model="job.script"></div>
+	<div class="script-actions">
+		<a class="btn btn-primary" ng-click="save()">Save</a>
+		<a class="btn btn-default" href="#/dashboard">Cancel</a>
+	</div>
+</div>

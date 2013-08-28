@@ -7,7 +7,7 @@ module.exports = function(grunt){
 
 		var root = data.root || path.resolve(__dirname, '../../devServer');
 		var port = data.port || 80;
-		var host = data.host || 'localhost';
+		var host = data.host;
 
 		var cran = createServer(port, host, root);
 	});

@@ -1,5 +1,54 @@
-<ul>
-	<li ng-repeat="job in jobs">
-		{{job.id}}
-	</li>
-</ul>
+<div class="cover">
+	<div class="cover-content">
+		<h1>cran</h1>
+		<p>A web based JavaScript scheduler.</p>
+		<p>
+			<a class="btn btn-success" href="#/create-job">
+				<span class="glyphicon glyphicon-file"></span>
+				New Job
+			</a>
+		</p>
+	</div>
+</div>
+<table class="table table-striped jobs">
+	<thead>
+		<tr>
+			<th  class="col-lg-4" ng-click="sortColumn='name';sortDescending=!sortDescending">
+				Job Name
+				<span ng-show="sortColumn == 'name'" ng-class="{
+						'glyphicon': true,
+						'glyphicon-sort-by-alphabet': !sortDescending,
+						'glyphicon-sort-by-alphabet-alt': sortDescending
+					}">
+				</span>
+			</th>
+			<th class="col-lg-4">Schedule</th>
+			<th class="col-lg-2" ng-click="sortColumn='lastRunTime';sortDescending=!sortDescending">
+				Last Run
+				<span ng-show="sortColumn == 'lastRunTime'" ng-class="{
+						'glyphicon': true,
+						'glyphicon-sort-by-attributes': sortDescending,
+						'glyphicon-sort-by-attributes-alt': !sortDescending
+					}">
+				</span>
+			</th>
+			<th class="col-lg-2" ng-click="sortColumn='nextRunTime';sortDescending=!sortDescending">
+				Next Run
+				<span ng-show="sortColumn == 'nextRunTime'" ng-class="{
+						'glyphicon': true,
+						'glyphicon-sort-by-attributes': !sortDescending,
+						'glyphicon-sort-by-attributes-alt': sortDescending
+					}">
+				</span>
+			</th>
+		</tr>
+	</thead>
+	<tr ng-repeat="job in jobs | orderBy:sortColumn:sortDescending">
+		<td>
+			<a ng-href="#/edit-job/{{job.id}}">{{job.name}}</a>
+		</td>
+		<td>{{job.rawSchedule}}</td>
+		<td>{{moment(job.lastRunTime).fromNow()}}</td>
+		<td>{{moment(job.nextRunTime).fromNow()}}</td>
+	</tr>
+</table>

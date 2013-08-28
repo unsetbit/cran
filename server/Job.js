@@ -1,12 +1,17 @@
 var vm = require('vm'),
-	generateId = require('node-uuid').v4;
+	generateId = require('node-uuid').v4,
+	later = require('later');
 
-module.exports = function createJob(name, script, schedule){
+module.exports = function createJob(name, script, rawSchedule){
 	var job = {};
 	var compiledScript = vm.createScript(script);
 	var id = generateId();
-	var nextRunTime = schedule.nextTime();
-	var startTime = nextRunTime;
+	
+	var schedule = later.parse.text(rawSchedule);
+	var startTime = later.schedule(schedule).next().getTime();
+	var lastRunTime;
+	var nextRunTime = startTime;
+
 	var lastResult;
 	var context = {
 		require: require,
@@ -21,6 +26,7 @@ module.exports = function createJob(name, script, schedule){
 		api.script = script;
 		api.startTime = startTime;
 		api.schedule = schedule;
+		api.rawSchedule = rawSchedule;
 		api.run = run;
 
 		Object.defineProperty(api, "nextRunTime", { 
@@ -28,6 +34,11 @@ module.exports = function createJob(name, script, schedule){
 			enumerable: true
 		});
 		
+		Object.defineProperty(api, "lastRunTime", { 
+			get: function(){ return lastRunTime; },
+			enumerable: true
+		});
+
 		Object.defineProperty(api, "lastResult", { 
 			get: function(){ return lastResult; },
 			enumerable: true
@@ -37,13 +48,15 @@ module.exports = function createJob(name, script, schedule){
 	};
 
 	function run(){
+		var nextTwo = later.schedule(schedule).next(2);
+		lastRunTime = nextRunTime;
+		nextRunTime = nextTwo[1].getTime(); // index 0 is the current one
+
 		try{
 			lastResult = compiledScript.runInNewContext(context);
 		} catch(err){
 			lastResult = err;
 		}
-		 
-		nextRunTime = schedule.nextTime();
 	}
 
 	return getApi();

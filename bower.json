@@ -5,7 +5,9 @@
     "bootstrap": "~3.0.0",
     "angular": "1.2.0rc1",
     "angular-resource": "~1.0.5",
-    "eventemitter2": "~0.4.13"
+    "eventemitter2": "~0.4.13",
+    "later": "*",
+    "moment": "~2.1.0"
   },
   "devDependencies": {},
   "resolutions": {

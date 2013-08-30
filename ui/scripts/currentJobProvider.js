@@ -1,11 +1,11 @@
-module.exports = function(){
+module.exports = function($route, $http){
 	'use strict';
-
-	this.$get = function($q, $route, cran){
-		if($route.current.params.jobId){
-			return $q.when(cran.get($route.current.params.jobId));	
+		
+	return function(){
+		if('jobId' in $route.current.params){
+			return $http.get('/get/' + $route.current.params.jobId).then(function(result){
+				return result.data;
+			});
 		}
-
-		return $q.when();
 	};
 };

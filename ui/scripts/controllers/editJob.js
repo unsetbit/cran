@@ -1,16 +1,32 @@
-module.exports = function($scope, cran, currentJob){
-	$scope.job = currentJob || {
-		name: "",
-		rawSchedule: "",
-		script: ""
-	};
-
-	console.log(currentJob);
+module.exports = function($scope, $http, $location, $window, currentJob){
+	if(typeof currentJob === "function"){
+		$scope.job = {
+			name: "",
+			rawSchedule: "",
+			script: ""
+		};
+	} else {
+		$scope.job = currentJob;
+	}
 
 	$scope.save = function(){
-		console.log($scope.job);
-		cran.create($scope.job);
+		$http.post('/save', $scope.job).then(function(){
+			$location.path('/dashboard').replace();
+		}, function(){
+			alert('An error occurred');
+		});
 	};
+
+	$scope.delete = function(){
+		var confirmed = $window.confirm("Are you sure you want to delete this job?");
+		if(confirmed){
+			$http.get('/delete/' + $scope.job.id).then(function(result){
+				$location.path('/dashboard').replace();
+			}, function(){
+				alert('An error occurred');	
+			});
+		}
+	}
 
 	$scope.aceLoaded = function(editor){
 		editor.setShowPrintMargin(false);

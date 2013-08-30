@@ -24,8 +24,12 @@ module.exports = function createScheduler(){
 	}
 
 	function get(jobId){
-		if(jobId === void 0) return jobMap;
+		if(jobId === void 0) return getJobList();
 		return jobMap[jobId];
+	}
+
+	function getJobList(){
+		return Object.keys(jobMap).map(function(id){ return jobMap[id]; });
 	}
 
 	function add(job){

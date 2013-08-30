@@ -1,14 +1,20 @@
 'use strict';
 
-module.exports = function($scope, cran){
-	$scope.jobs = cran.get();
-	$scope.moment = moment;
+module.exports = function($scope, $http, $timeout, $route){
+	var REFRESH_INTERVAL = 2000;
 
-	console.log($scope.jobs);
-	cran.on('update', function(jobs){
-		console.log('UPDATE', jobs);
-		$scope.$apply(function(){
-			$scope.jobs = jobs;
-		});
-	});
+	$scope.moment = moment;
+	$scope.jobs = [];
+
+	function update(){
+		if($route.current.loadedTemplateUrl === 'template/dashboard.html'){
+			$http.get('/get').then(function(result){
+				$scope.jobs.length = 0;
+				$scope.jobs = result.data;
+			});
+			$timeout(update, REFRESH_INTERVAL);
+		}
+	}
+
+	update();
 };

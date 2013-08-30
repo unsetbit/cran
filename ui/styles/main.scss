@@ -1,75 +1,90 @@
-.ace_editor { 
-	height: calc(100% - 137px);
-	
-	.ace_content{
-		width:100%;
-	}
-}
-
-.cover{
-	width:330px; 
-	float:left; 
-	height:100%;
-	background-image: url(/static/cranberry-cover.jpg);
-	background-size: cover;
-	box-shadow: inset -1px 0 0 rgba(0,0,0,0.8);
-	position:relative;
-
-	.cover-content{
-		position:absolute;
-		bottom:50px;
-		left:20px;
-
-		color:white;
-		text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-
-		h1 {
-			font-weight:bold;
-		}
-	}
-}
-
-.jobs{
-	float:left;
-	width: calc(100% - 360px);
-	margin: 0 15px;
-
-	th{
-		cursor:default;
-		&[ng-click]{
-			cursor:pointer;	
-		}
-	}
-}
-
-.script-actions{
-	padding: 5px 0;
-}
-.script-schedule,
-.script-name {
-	width:100%;
-	border:none;
-	outline: 0;
-}
-
-.script-name{
-	margin-top:20px;
-	margin-bottom:10px;
-	border:none;
-}
-
-.script-schedule{
-	margin: 0 0 10px;
-	font-style:italic;
-}
-
-html, body{
-	min-width:800px;
-}
 
 html, 
 body, 
 .container,
 ng-view{
 	height:100%;
+}
+
+body{
+	font-family: 'Rosario', sans-serif;
+}
+
+.dashboard{
+	.cover{
+		img{
+			position:absolute;
+			top:-7px;
+			z-index: -1;
+		}
+		h1{
+			margin-left:63px;
+			color: rgb(153, 0, 0);
+		}
+		a{ margin-top: 6px;}
+	}
+
+	.jobs{
+		th{
+			cursor:default;
+			&[ng-click]{
+				cursor:pointer;	
+			}
+		}
+	}
+}
+
+.edit-job{
+	height:100%;	
+	position:relative;
+
+	textarea{
+		height: 100%;
+		width:100%;
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+	}
+
+	.ace_editor{
+		height: 100%;
+
+		.ace_content{
+			width:100%;
+		}
+	}
+
+	.job-script-container{
+		height: calc(100% - 181px);
+
+		&> div{
+			height:100%;
+		}
+	}
+
+	.job-errors{
+		height:100%;
+		margin-bottom: 10px;
+		overflow:auto;
+	}
+
+	.script-actions{
+		padding: 10px 0;
+	}
+	.script-schedule,
+	.script-name {
+		font-family: 'Rosario', sans-serif;
+		width:100%;
+		border:none;
+		outline: 0;
+	}
+
+	.script-name{
+		margin-top:40px;
+		margin-bottom:10px;
+		border:none;
+	}
+
+	.script-schedule{
+		margin: 0 0 10px;
+		font-style:italic;
+	}
 }

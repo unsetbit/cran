@@ -1,10 +1,15 @@
 <div class="dashboard">
 	<div class="cover">
 		<img src="static/cranberry.jpg" class="pull-left">
-		<a class="btn btn-success pull-right" href="#/create-job">
-			<span class="glyphicon glyphicon-file"></span>
-			Create Job
-		</a>
+
+		<div class="pull-right">
+			<div class="btn-group">	
+				<a class="btn btn-success" href="#/create-job">
+					<span class="glyphicon glyphicon-file"></span>
+					Create Job
+				</a>
+			</div>
+		</div>
 		<div class="page-header">
 		  <h1>cran <small> JavaScript job scheduler</small></h1>
 		</div>
@@ -53,9 +58,9 @@
 		</thead>
 		<tr ng-repeat="job in jobs | orderBy:sortColumn:sortDescending">
 			<td>
-				<a ng-href="#/edit-job/{{job.id}}">{{job.name}}</a> <span ng-show="job.hasError" class="label label-danger">error</span>
+				<a ng-href="#/edit-job/{{job.id}}">{{job.name}}</a> <span ng-show="job.error" class="label label-danger">error</span>
 			</td>
-			<td>{{job.rawSchedule}}</td>
+			<td>{{job.schedule}}</td>
 			<td>{{moment(job.lastRunTime).fromNow()}}</td>
 			<td>{{moment(job.nextRunTime).fromNow()}}</td>
 			<td>{{moment(job.creationTime).fromNow()}}</td>

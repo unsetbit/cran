@@ -2,26 +2,62 @@ var vm = require('vm'),
 	generateId = require('node-uuid').v4,
 	later = require('later');
 
-module.exports = function createJob(){
-	var id = generateId(),
-		creationTime = Date.now(),
-		name,
-		script,
+module.exports = function createJob(config){
+	if(!config) config = {};
+
+	var scheduleError = '',
+		scriptError = '',
+		compiledSchedule,
 		compiledScript,
-		schedule,
-		rawSchedule,
 		lastResult,
-		hasError = false,
 		lastRunTime,
 		nextRunTime;
 
+	if(!('id' in config)) config.id = generateId();
+	if(!('creationTime' in config)) config.creationTime = Date.now();
+	if('script' in config) compileScript(config.script);
+	if('schedule' in config) compileSchedule(config.schedule);
+
+	function compileSchedule(val){
+		compiledSchedule = later.parse.text(val);
+		if(~compiledSchedule.error){
+			scheduleError = "Error in schedule near: " + val.substr(compiledSchedule.error);
+			nextRunTime = undefined;
+		} else {
+			scheduleError = undefined;
+			nextRunTime = later.schedule(compiledSchedule).next().getTime();
+		}
+	}
+
+	function compileScript(val){
+		try{
+			compiledScript = vm.createScript(val, config.name);
+			scriptError = undefined;
+		} catch(err){
+			scriptError = err.stack;
+		}
+	}
+
+	function setSchedule(val){
+		if(config.schedule === val) return;
+
+		config.schedule = val;
+		compileSchedule(val);
+	}
+
+	function setScript(val){
+		if(config.script === val) return;
+
+		config.script = val;
+		compileScript(val);
+	}
+
 	function run(){
-		var nextTwo = later.schedule(schedule).next(2);
+		if(scriptError || scheduleError) return;
+
+		var nextTwo = later.schedule(compiledSchedule).next(2);
 		lastRunTime = nextRunTime;
 		nextRunTime = nextTwo[1].getTime(); // index 0 is the current one
-
-		// If an error occurred last time we tried to run the job, break early
-		if(hasError) return;
 
 		try{
 			lastResult = compiledScript.runInNewContext({
@@ -29,43 +65,18 @@ module.exports = function createJob(){
 				console: console
 			});
 		} catch(err){
-			hasError = true;
-			lastResult = err.stack;
+			scriptError = err.stack;
 		}
 	}
 
-	function setSchedule(val){
-		if(val === rawSchedule) return;
-		rawSchedule = val;
-		schedule = later.parse.text(rawSchedule);
-		nextRunTime = later.schedule(schedule).next().getTime();		
-	}
-
-	function setScript(val){
-		if(val === script) return;
-		script = val;
-		compiledScript = vm.createScript(val, name);
-		hasError = false;
-	}
-
-	return (function(){
+	function getApi(){
 		var api = {};
 		
-		api.id = id;
-		api.creationTime = creationTime;
+		api.config = config;
 		api.run = run;
-
-		Object.defineProperty(api, "schedule", {
-			get: function(){ return schedule; }
-		});
-
+		
 		Object.defineProperty(api, "nextRunTime", { 
 			get: function(){ return nextRunTime; },
-			enumerable: true
-		});
-		
-		Object.defineProperty(api, "hasError", { 
-			get: function(){ return hasError; },
 			enumerable: true
 		});
 
@@ -73,32 +84,43 @@ module.exports = function createJob(){
 			get: function(){ return lastRunTime; },
 			enumerable: true
 		});
+		
+		Object.defineProperty(api, "error", { 
+			get: function(){
+				if(scheduleError && scriptError){
+					return scheduleError + '\n' + scriptError;
+				} 
 
-		Object.defineProperty(api, "lastResult", { 
-			get: function(){ return lastResult; },
+				return scheduleError || scriptError; 
+			},
+			enumerable: true
+		});
+		
+		Object.defineProperty(api, "id", { 
+			get: function(){ return config.id; },
 			enumerable: true
 		});
 
 		Object.defineProperty(api, "name", {
-			get: function(){ return name; },
-			set: function(val){
-				name = val;
-			},
-			enumerable: true
+			get: function(){ return config.name; },
+			set: function(val){ config.name = val; },
+			enumerable: true	
 		});
 
-		Object.defineProperty(api, "rawSchedule", {
-			get: function(){ return rawSchedule; },
+		Object.defineProperty(api, "schedule", {
+			get: function(){ return config.schedule; },
 			set: setSchedule,
 			enumerable: true	
 		});
 		
 		Object.defineProperty(api, "script", {
-			get: function(){ return script; },
+			get: function(){ return config.script; },
 			set: setScript,
 			enumerable: true
 		});
 
 		return api;		
-	}());
+	}
+
+	return getApi();
 };

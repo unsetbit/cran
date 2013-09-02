@@ -2,7 +2,7 @@ module.exports = function($scope, $http, $location, $window, currentJob){
 	if(typeof currentJob === "function"){
 		$scope.job = {
 			name: "",
-			rawSchedule: "",
+			schedule: "",
 			script: ""
 		};
 	} else {

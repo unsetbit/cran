@@ -1,27 +1,31 @@
 var EventEmitter = require('events').EventEmitter,
-	BinaryHeap = require('./BinaryHeap.js');
+	BinaryHeap = require('./BinaryHeap.js'),
+	createLevelDB = require('level'),
+	createJob = require('./Job.js'),
+	generateId = require('node-uuid').v4;
 
 // This is the longest timeout allowed
-var MAX_TIMEOUT = 2147483647; // 2^31 - 1
+var MAX_TIMEOUT = 2147483647; // 2^31 - 1 milliseconds, about 24 days
 
-module.exports = function createScheduler(){
-	var timer;
-	var emitter = new EventEmitter();
-	var jobMap = {};
+function removeFromArray(arr, val){
+	var index = arr.indexOf(val);
+	arr.splice(index, 1);
+}
 
-	var jobQueue = new BinaryHeap(function(item){
-		return item.nextRunTime;
-	});
+function noop(){};
 
-	function getApi(){
-		return {
-			add: add,
-			remove: remove,
-			get: get,
-			on: emitter.on.bind(emitter),
-			removeListener: emitter.removeListener.bind(emitter)
-		};
-	}
+module.exports = function createScheduler(callback){
+	var db = createLevelDB('./storage', {valueEncoding: 'json'}),
+		timer,
+		id,
+		emitter = new EventEmitter(),
+		jobMap = {},
+		jobIds,
+		upSince,
+		partners,
+		jobQueue = new BinaryHeap(function(item){
+			return item.nextRunTime;
+		});
 
 	function get(jobId){
 		if(jobId === void 0) return getJobList();
@@ -32,44 +36,107 @@ module.exports = function createScheduler(){
 		return Object.keys(jobMap).map(function(id){ return jobMap[id]; });
 	}
 
-	function add(job){
-		if(job.id in jobMap) return;
+	function update(job, callback){
+		callback = callback || noop;
+		if(!job.id in jobMap) return callback(new Error("Can't find job"));
 
-		jobQueue.push(job);
+		db.put(job.id, job.config, function(err){
+			if(err) return callback(err);
+			
+			if(jobQueue.contains(job)){
+				jobQueue.remove(job);	
+			}
+
+			if(!job.error) jobQueue.push(job);
+			resetTimer();
+
+			callback(job);
+		});
+	}
+
+	// Adds a new job to the storage
+	function add(job, callback){
+		callback = callback || noop;
+		if(job.id in jobMap) return callback(new Error("Job already exists"));
+
+		db.put(job.id, job.config, function(err){
+			if(err) return callback(err);
+
+			// Update job ids list
+			jobIds.push(job.id);
+
+			db.put('jobIds', jobIds, function(err){
+				// rollback in case of error
+				if(err){
+					db.del(job.id);
+					removeFromArray(jobIds, job.id);
+					return callback(err);
+				}
+
+				load(job);
+
+				emitter.emit('job added', job);
+				callback(job);	
+			});
+		});
+	}
+
+	// Loads existing job to memory, used internally by add(job)
+	function load(job){
 		jobMap[job.id] = job;
 
+		if(job.error) return;
+
+		jobQueue.push(job);
+		
 		// If the job we pushed is next in the queue
 		// then we need to reset the timer
 		if(jobQueue.peek() === job){
 			resetTimer();
 		}
-
-		emitter.emit('job added', job);
 	}
 
-	function remove(job){
-		if(!(job.id in jobMap)) return;
+	// Removes existing job from memory and storage
+	function remove(job, callback){
+		callback = callback || noop;
+		if(!job.id in jobMap) return callback(new Error("Can't find job"));
 		
-		if(jobQueue.peek() === job){
-			// If this job was next in line, we need
-			// to reset the timer after we remove it from
-			// the queue
-			jobQueue.remove(job);
-			resetTimer();
-		} else {
-			jobQueue.remove(job);	
-		}
+		db.del(job.id, function(err){
+			if(err) return callback(err);
 
-		delete jobMap[job.id];
+			removeFromArray(jobIds, job.id);
+			db.put('jobIds', jobIds, function(err){
+				if(err) return callback(err);
 
-		emitter.emit('job removed', job);
+				if(!job.error){
+					var nextInLine = jobQueue.peek() === job;
+
+					// If this job was next in line, we need
+					// to reset the timer after we remove it from
+					// the queue
+					jobQueue.remove(job);
+
+					if(nextInLine){
+						resetTimer();
+					}
+				}
+
+				delete jobMap[job.id];
+
+				emitter.emit('job removed', job);
+				callback(job);
+			});
+		});
 	}
 
+	// Refreshes the timer to the next job in queue
 	function resetTimer(){
 		clearTimeout(timer);
 		setTimer();
 	}
 
+	// Sets the timer so that it wakes the process for the next
+	// job in the queue
 	function setTimer(){
 		var nextJob = jobQueue.peek();
 
@@ -107,5 +174,71 @@ module.exports = function createScheduler(){
 		setTimer();
 	}
 
-	return getApi();
+	function loadJobs(){
+		db.get('jobIds', function(err, val){
+			if(err){
+				jobIds = [];
+			} else {
+				jobIds = val;
+			}
+
+			var counter = 0,
+				length = jobIds.length;
+
+			if(length === counter){
+				callback(getApi());
+				return;
+			}
+
+			jobIds.forEach(function(jobId){
+				db.get(jobId, function(err, jobConfig){
+					counter++;
+
+					if(err){
+						removeFromArray(jobIds, jobId);
+					} else {
+						load(createJob(jobConfig));						
+					}
+
+					if(counter === length){
+						callback(getApi());
+					}
+				});
+			});
+		});
+	}
+
+	// Initializes object from persistant store
+	function init(){
+		db.get('id', function(err, val){
+			upSince = Date.now();
+
+			if(err){
+				id = generateId();
+				db.put('id', id, loadJobs);	
+			} else {
+				id = val;
+				loadJobs();
+			}
+		});
+	}
+
+	function getApi(){
+		var api = {
+			id: id,
+			jobs: jobIds,
+			partners: partners,
+			upSince: upSince,
+			add: add,
+			remove: remove,
+			get: get,
+			update: update,
+			on: emitter.on.bind(emitter),
+			removeListener: emitter.removeListener.bind(emitter)
+		};
+
+		return api;
+	}
+
+	init();
 };

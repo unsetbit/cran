@@ -9,6 +9,6 @@ module.exports = function(grunt){
 		var port = data.port || 80;
 		var host = data.host;
 
-		var cran = createServer(port, host, root);
+		createServer(port, host, root);
 	});
 };

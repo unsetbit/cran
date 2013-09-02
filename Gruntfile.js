@@ -243,7 +243,9 @@ module.exports = function(grunt) {
     },
 
     server: {
-      dev: {}
+      dev: {
+        port:1080
+      }
     }
   };
 

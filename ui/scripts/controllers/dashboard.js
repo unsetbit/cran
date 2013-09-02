@@ -8,9 +8,9 @@ module.exports = function($scope, $http, $timeout, $route){
 
 	function update(){
 		if($route.current.loadedTemplateUrl === 'template/dashboard.html'){
-			$http.get('/get').then(function(result){
+			$http.get('/info').then(function(result){
 				$scope.jobs.length = 0;
-				$scope.jobs = result.data;
+				$scope.jobs = result.data.jobs;
 			});
 			$timeout(update, REFRESH_INTERVAL);
 		}

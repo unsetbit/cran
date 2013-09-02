@@ -7,6 +7,16 @@ You can require any native node module in your job scripts along with 'request'.
 2. Run: `cran`
 3. Navigate a local browser to: [http://localhost:2726](http://localhost:2726)
 
-Your schedule is parsed by [later](http://bunkat.github.io/later/parsers.html#text). 
-Write it in plain English, like "every 2 seconds" or "on Tuesday at 2:00pm" or "every 2 hours on the last day of the month except at 2:00 pm" and so on...
-Note that the schedule is read as UTC (so 2pm would mean 2pm UTC, not the local timezone).
+Here are some neat features:
+* Use plain English to define your schedule (ex. "every 2 hours on the last day of the month")
+* Edit code via the web interface using Ace
+* Works on mobile devices
+
+Note that your schedule is parsed by [later](http://bunkat.github.io/later/parsers.html#text) according to UTC (for example,
+if you write "2:00pm", the system understands it as "2:00pm UTC"). 
+
+## Screenshots
+### The Dashboard
+<img src="http://ozan.io/cran/static/dashboard.png">
+### The Edit Page
+<img src="http://ozan.io/cran/static/edit-page.png"/>

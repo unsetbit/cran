@@ -9,7 +9,7 @@ You can require any native node module in your job scripts along with 'request'.
 
 Here are some neat features:
 * Use plain English to define your schedule (ex. "every 2 hours on the last day of the month")
-* Edit code via the web interface using Ace
+* Edit script via the web app using [Ace](http://ace.c9.io/)
 * Works on mobile devices
 
 Note that your schedule is parsed by [later](http://bunkat.github.io/later/parsers.html#text) according to UTC (for example,

@@ -1,4 +1,6 @@
 module.exports = function($scope, $http, $location, $window, currentJob){
+	'use strict';
+	
 	if(typeof currentJob === "function"){
 		$scope.job = {
 			name: "",
@@ -32,3 +34,5 @@ module.exports = function($scope, $http, $location, $window, currentJob){
 		editor.setShowPrintMargin(false);
 	};
 };
+
+module.exports.$inject = ['$scope', '$http', '$location', '$window', 'currentJob'];

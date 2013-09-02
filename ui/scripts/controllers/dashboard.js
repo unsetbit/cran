@@ -1,6 +1,6 @@
-'use strict';
-
 module.exports = function($scope, $http, $timeout, $route){
+	'use strict';
+
 	var REFRESH_INTERVAL = 2000;
 
 	$scope.moment = moment;
@@ -18,3 +18,5 @@ module.exports = function($scope, $http, $timeout, $route){
 
 	update();
 };
+
+module.exports.$inject = ['$scope', '$http', '$timeout', '$route'];

@@ -128,12 +128,10 @@ module.exports = function(grunt) {
           '<%= properties.componentsDir %>/jquery/jquery.js',
           '<%= properties.componentsDir %>/angular/angular.js',
           '<%= properties.componentsDir %>/angular-route/angular-route.js',
-          '<%= properties.componentsDir %>/angular-resource/angular-resource.js',
           '<%= properties.componentsDir %>/ace-builds/src/ace.js',
           '<%= properties.componentsDir %>/ace-builds/src/mode-javascript.js',
           '<%= properties.componentsDir %>/angular-ui-ace/ui-ace.js',
           '<%= properties.componentsDir %>/bootstrap/dist/js/bootstrap.js',
-          '<%= properties.componentsDir %>/eventemitter2/lib/eventemitter2.js',
           '<%= properties.componentsDir %>/angular-bootstrap/ui-bootstrap.js',
           '<%= properties.componentsDir %>/angular-bootstrap/ui-bootstrap-tpls.js',
           '<%= properties.componentsDir %>/later/later.js',
@@ -145,7 +143,6 @@ module.exports = function(grunt) {
       styles: {
         src: [
           '<%= properties.componentsDir %>/bootstrap/dist/css/bootstrap.css',
-          '<%= properties.componentsDir %>/codemirror/lib/codemirror.css',
           '<%= properties.tmpDir %>/app.css'
         ],
         dest: '<%= properties.tmpDir %>/cran.css'
@@ -185,27 +182,6 @@ module.exports = function(grunt) {
       webapp: {
         src: ['<%= concat.scripts.dest %>'],
         dest: '<%= properties.distDir %>/cran.js'
-      }
-    },
-
-    jasmine: {
-      test: {
-        src: [
-          '<%= properties.scriptsDir %>/test/phantomjs-polyfill.js',
-          '<%= properties.tmpDir %>/turn.js',
-          '<%= properties.tmpDir %>/i18n/en-us.js',
-          '<%= properties.tmpDir %>/webapp.js',
-          '<%= properties.tmpDir %>/test.js',
-        ],
-        options: {
-          specs: '<%= properties.testsDir %>/**/*.js',
-          vendor: [
-            '<%= properties.tmpDir %>/components.js',
-            '<%= properties.componentsDir %>/static/angular-mocks.js',
-            '<%= properties.componentsDir %>/static/sinon.js',
-            '<%= properties.testsDir %>/mocks.js'
-          ]
-        }
       }
     },
 

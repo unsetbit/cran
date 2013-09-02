@@ -9,3 +9,5 @@ module.exports = function($route, $http){
 		}
 	};
 };
+
+module.exports.$inject = ['$route', '$http'];

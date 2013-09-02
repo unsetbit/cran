@@ -21,7 +21,7 @@ module.exports = function createJob(config){
 	function compileSchedule(val){
 		compiledSchedule = later.parse.text(val);
 		if(~compiledSchedule.error){
-			scheduleError = "Error in schedule near: " + val.substr(compiledSchedule.error);
+			scheduleError = "Error in schedule near: " + val.substr(compiledSchedule.error) + '\n For help on supported text structures, view http://bunkat.github.io/later/parsers.html#text.';
 			nextRunTime = undefined;
 		} else {
 			scheduleError = undefined;

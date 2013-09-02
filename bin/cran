@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var path = require('path'),
 	app = require('commander'),
 	createServer = require('../server/Server.js');

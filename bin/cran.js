@@ -1,0 +1,23 @@
+var path = require('path'),
+	app = require('commander'),
+	createServer = require('../server/Server.js');
+
+
+app.version('0.1.0').
+	option('-h, --host [host]', 'The host to serve as. Ex: localhost:1080').
+	parse(process.argv);
+
+var host = app.host;
+var port = 2726;
+var hostname = "localhost";
+
+if(host){
+	var hostParts = host.split(':');
+	if(hostParts[0]) hostname = hostParts[0];
+	if(hostParts[1]) port = parseInt(hostParts[1]);
+
+	if(hostname === '*') hostname = undefined;
+}
+
+createServer(port, hostname, path.resolve(__dirname, '../dist'));
+console.log('Server started on ' + (hostname ? hostname : '*')  + ":" + port);

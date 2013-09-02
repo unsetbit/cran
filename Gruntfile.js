@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 
   var config = {
     meta: {
-      banner: '/*! cran 1.0.0 - ' +
+      banner: '/*! cran 0.1.0 - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
         '* Copyright (c) <%= grunt.template.today("yyyy") %> Ozan Turgut */'
     },
@@ -102,10 +102,26 @@ module.exports = function(grunt) {
             expand: true
           },
           { 
+            dest: '<%= properties.distDir %>/fonts',
+            cwd: '<%= properties.componentsDir %>/bootstrap/fonts',
+            expand: true,
+            src: ['**']
+          },
+          { 
             dest: '<%= properties.distDir %>',
             cwd: '<%= properties.tmpDir %>',
             expand: true,
             src: ['images/**', 'fonts/**']
+          },
+          {
+            dest: '<%= properties.distDir %>/static',
+            cwd: '<%= properties.staticDir %>',
+            expand: true,
+            src: ['**']
+          },
+          { 
+              dest: '<%= properties.distDir %>/worker-javascript.js',
+              src: '<%= properties.componentsDir %>/ace-builds/src/worker-javascript.js',
           },
           { 
               dest: '<%= properties.devServerDir %>/worker-javascript.js',

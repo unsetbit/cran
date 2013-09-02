@@ -1,6 +1,5 @@
 storage
 node_modules
-dist
 .tmp
 .sass-cache
 ui/components

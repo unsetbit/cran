@@ -1,0 +1,69 @@
+<div class="dashboard">
+	<div class="cover">
+		<img src="static/cranberry.jpg" class="pull-left">
+
+		<div class="pull-right">
+			<div class="btn-group">	
+				<a class="btn btn-success" href="#/create-job">
+					<span class="glyphicon glyphicon-file"></span>
+					Create Job
+				</a>
+			</div>
+		</div>
+		<div class="page-header">
+		  <h1>cran <small> JavaScript job scheduler</small></h1>
+		</div>
+	</div>
+	<table class="jobs table table-striped">
+		<thead>
+			<tr>
+				<th  class="col-lg-3" ng-click="sortColumn='name';sortDescending=!sortDescending">
+					Job Name
+					<span ng-show="sortColumn == 'name'" ng-class="{
+							'glyphicon': true,
+							'glyphicon-sort-by-alphabet': !sortDescending,
+							'glyphicon-sort-by-alphabet-alt': sortDescending
+						}">
+					</span>
+				</th>
+				<th class="col-lg-3">Schedule</th>
+				<th class="col-lg-2" ng-click="sortColumn='lastRunTime';sortDescending=!sortDescending">
+					Last Run
+					<span ng-show="sortColumn == 'lastRunTime'" ng-class="{
+							'glyphicon': true,
+							'glyphicon-sort-by-attributes': sortDescending,
+							'glyphicon-sort-by-attributes-alt': !sortDescending
+						}">
+					</span>
+				</th>
+				<th class="col-lg-2" ng-click="sortColumn='nextRunTime';sortDescending=!sortDescending">
+					Next Run
+					<span ng-show="sortColumn == 'nextRunTime'" ng-class="{
+							'glyphicon': true,
+							'glyphicon-sort-by-attributes': !sortDescending,
+							'glyphicon-sort-by-attributes-alt': sortDescending
+						}">
+					</span>
+				</th>
+				<th class="col-lg-2" ng-click="sortColumn='creationTime';sortDescending=!sortDescending">
+					Created
+					<span ng-show="sortColumn == 'creationTime'" ng-class="{
+							'glyphicon': true,
+							'glyphicon-sort-by-attributes': !sortDescending,
+							'glyphicon-sort-by-attributes-alt': sortDescending
+						}">
+					</span>
+				</th>
+			</tr>
+		</thead>
+		<tr ng-repeat="job in jobs | orderBy:sortColumn:sortDescending">
+			<td>
+				<a ng-href="#/edit-job/{{job.id}}">{{job.name}}</a> <span ng-show="job.error" class="label label-danger">error</span>
+			</td>
+			<td>{{job.schedule}}</td>
+			<td>{{moment(job.lastRunTime).fromNow()}}</td>
+			<td>{{moment(job.nextRunTime).fromNow()}}</td>
+			<td>{{moment(job.creationTime).fromNow()}}</td>
+		</tr>
+	</table>
+</div>

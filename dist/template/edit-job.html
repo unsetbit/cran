@@ -1,0 +1,23 @@
+<div class="edit-job" ng-form="editJob">
+	<div>
+		<input required autofocus class="h1 script-name" type="text" placeholder="Type your job name" ng-model="job.name" />
+		<input required class="script-schedule" type="text" placeholder="Type your job schedule"  ng-model="job.schedule"/>
+	</div>
+	<div ng-class="{'row': job.error, 'job-script-container': true}">
+		<div ng-class="{'col-lg-6': job.error}">
+			<div 
+				class="visible-lg visible-md"
+				ui-ace="{mode:'javascript', showGutter: true, onLoad: aceLoaded}"  
+				ng-model="job.script"
+			></div>
+			<textarea class="hidden-lg hidden-md" ng-model="job.script"></textarea>
+		</div>
+
+		<pre ng-class="{'col-lg-6': job.error, 'job-errors': true}" ng-show="job.error">{{job.error}}</pre>
+	</div>
+	<div class="script-actions">
+		<a class="btn btn-primary" ng-disabled="editJob.$invalid" ng-click="save()">Save</a>
+		<a class="btn btn-default" href="#/dashboard">Cancel</a>
+		<a ng-show="job.id" class="pull-right btn btn-danger" ng-click="delete()">Delete</a>
+	</div>
+</div>
